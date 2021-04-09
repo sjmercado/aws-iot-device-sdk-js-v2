@@ -120,11 +120,17 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
 
             await connection.subscribe(argv.topic, mqtt.QoS.AtLeastOnce, on_publish);
 
+            var timestamp = Date.now();
+
             for (let op_idx = 0; op_idx < argv.count; ++op_idx) {
                 const publish = async () => {
                     const msg = {
-                        message: argv.message,
-                        sequence: op_idx + 1,
+                        device_name: "SamSensor01",
+                        readings: {
+                            temperature: 0,
+                            humidity: 0.0
+                        },
+                        timestamp: new Date(timestamp)
                     };
                     const json = JSON.stringify(msg);
                     connection.publish(argv.topic, json, mqtt.QoS.AtLeastOnce);
