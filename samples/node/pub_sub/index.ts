@@ -120,6 +120,7 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
 
             await connection.subscribe(argv.topic, mqtt.QoS.AtLeastOnce, on_publish);
 
+            // Create timestamp in milliseconds
             var timestamp = Date.now();
 
             for (let op_idx = 0; op_idx < argv.count; ++op_idx) {
@@ -127,10 +128,11 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
                     const msg = {
                         device_name: "SamSensor01",
                         readings: {
-                            temperature: 0,
-                            humidity: 0.0
+                            temperature: getTemperature(),
+                            humidity: getHumidity()
                         },
-                        timestamp: new Date(timestamp)
+                        timestamp: new Date(timestamp),
+                        sequence: op_idx + 1
                     };
                     const json = JSON.stringify(msg);
                     connection.publish(argv.topic, json, mqtt.QoS.AtLeastOnce);
@@ -142,6 +144,36 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
             reject(error);
         }
     });
+}
+
+/* Gets the temperature reading. */
+function getTemperature() {
+    const min = 1;
+    const max = 101;
+    var randNum = Math.floor(Math.random() * (max - min) + min);
+
+    if (randNum > 0 && randNum <= 10) {
+        return -999;
+    } else if (randNum > 10 && randNum <= 20) {
+        return 87;
+    } else {
+        return Math.floor(Math.random() * (81 - 50) + 50);
+    }
+}
+
+/* Gets the humidity reading. */
+function getHumidity() {
+    const min = 1;
+    const max = 101;
+    var randNum = Math.floor(Math.random() * (max - min) + min);
+
+    if (randNum > 0 && randNum <= 25) {
+        return 0.95;
+    } else if (randNum > 25 && randNum <= 35) {
+        return 0.05;
+    } else {
+        return Math.random() * (0.8 - 0.4) + 0.4;
+    }
 }
 
 async function main(argv: Args) {
