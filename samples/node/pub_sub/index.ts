@@ -120,8 +120,8 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
 
             await connection.subscribe(argv.topic, mqtt.QoS.AtLeastOnce, on_publish);
 
-            // Create timestamp in milliseconds
-            var timestamp = Date.now();
+            var timestamp = Date.now(); // Create timestamp in milliseconds
+            const frequency = 10000;    // Frequency of readings (in milliseconds)
 
             for (let op_idx = 0; op_idx < argv.count; ++op_idx) {
                 const publish = async () => {
@@ -137,7 +137,7 @@ async function execute_session(connection: mqtt.MqttClientConnection, argv: Args
                     const json = JSON.stringify(msg);
                     connection.publish(argv.topic, json, mqtt.QoS.AtLeastOnce);
                 }
-                setTimeout(publish, op_idx * 1000);
+                setTimeout(publish, op_idx * frequency);
             }
         }
         catch (error) {
